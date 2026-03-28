@@ -1,0 +1,89 @@
+package com.msgcustom;
+
+import org.bukkit.Bukkit;
+import org.bukkit.command.Command;
+import org.bukkit.command.SimpleCommandMap;
+import org.bukkit.plugin.java.JavaPlugin;
+
+import java.lang.reflect.Field;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
+public class MsgCustom extends JavaPlugin {
+    private ConversationManager conversationManager;
+
+    @Override
+    public void onEnable() {
+        conversationManager = new ConversationManager(this);
+
+        getServer().getPluginManager().registerEvents(conversationManager, this);
+        MessageCommand messageCommand = new MessageCommand(conversationManager);
+        ReplyCommand replyCommand = new ReplyCommand(conversationManager);
+
+        // Register plugin.yml
+        if (getCommand("msg") != null) {
+            getCommand("msg").setExecutor(messageCommand);
+            getCommand("msg").setTabCompleter(messageCommand); 
+        }
+        if (getCommand("reply") != null) {
+            getCommand("reply").setExecutor(replyCommand);
+            getCommand("reply").setTabCompleter(replyCommand); 
+        }
+
+        Bukkit.getScheduler().runTaskLater(this, () -> {
+            cleanCommandRegistry();
+
+            if (getCommand("msg") != null) getCommand("msg").setExecutor(messageCommand);
+            if (getCommand("reply") != null) getCommand("reply").setExecutor(replyCommand);
+
+            getLogger().info("Registry commands complete.");
+        }, 1L);
+
+        // 5-minute cleanup
+        Bukkit.getScheduler().runTaskTimerAsynchronously(this, () -> {
+            if (conversationManager != null) {
+                conversationManager.cleanupOfflinePlayers();
+            }
+        }, 6000L, 6000L);
+
+        getLogger().info("Msgcustom has been enabled!");
+    }
+
+    private void cleanCommandRegistry() {
+        try {
+            Field commandMapField = Bukkit.getServer().getClass().getDeclaredField("commandMap");
+            commandMapField.setAccessible(true);
+            SimpleCommandMap commandMap = (SimpleCommandMap) commandMapField.get(Bukkit.getServer());
+
+            Field knownCommandsField = SimpleCommandMap.class.getDeclaredField("knownCommands");
+            knownCommandsField.setAccessible(true);
+
+            @SuppressWarnings("unchecked")
+            Map<String, Command> knownCommands = (Map<String, Command>) knownCommandsField.get(commandMap);
+
+            List<String> toRemove = Arrays.asList(
+                    "minecraft:msg", "minecraft:message", "minecraft:w", 
+                    "minecraft:whisper", "minecraft:tell", "minecraft:teammsg", "minecraft:tm",
+                    "msgcustom:msg", "msgcustom:message", "msgcustom:w", 
+                    "msgcustom:whisper", "msgcustom:tell", "msgcustom:reply", "msgcustom:r"
+            );
+
+            for (String cmdLabel : toRemove) {
+                if (knownCommands.containsKey(cmdLabel)) {
+                    knownCommands.remove(cmdLabel);
+                }
+            }
+
+            getLogger().info("Successfully removed " + toRemove.size() + " namespaced command entries.");
+        } catch (Exception e) {
+            getLogger().warning("Could not clean registry: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onDisable() {
+        getLogger().info("Msgcustom has been disabled!");
+    }
+}

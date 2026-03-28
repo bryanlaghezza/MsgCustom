@@ -1,0 +1,16 @@
+name: Msgcustom
+version: 26.3.28-Optiupdate
+main: com.msgcustom.MsgCustom
+api-version: '1.21'
+author: Bryan 
+description: Custom messaging plugin with color formatting
+
+commands:
+  msg:
+    description: Send a private message
+    usage: /msg <player> <message>
+    aliases: [message, w, whisper, tell]
+  reply:
+    description: Reply to the last message
+    usage: /reply [player] <message>
+    aliases: [r]
