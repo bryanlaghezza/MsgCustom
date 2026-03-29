@@ -1,9 +1,9 @@
 name: Msgcustom
-version: 26.3.29-FilterUpdateOPTIMIZED
+version: 26.3.29-SocialSpy
 main: com.msgcustom.MsgCustom
 api-version: '1.21'
 author: Bryan 
-description: Custom messaging plugin with color formatting
+description: Custom messaging plugin with color formatting and social spy
 
 commands:
   msg:
@@ -14,3 +14,12 @@ commands:
     description: Reply to the last message
     usage: /reply [player] <message>
     aliases: [r]
+  socialspy:
+    description: Monitor private messages of specific players | List 'who' you are currently socially spying
+    usage: /socialspy <player> | /socialspy who
+    permission: msgcustom.socialspy
+
+permissions:
+  msgcustom.socialspy:
+    description: Allows monitoring private messages of specific players
+    default: op

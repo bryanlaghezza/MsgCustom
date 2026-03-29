@@ -45,6 +45,7 @@ public class MsgCustom extends JavaPlugin {
         getServer().getPluginManager().registerEvents(conversationManager, this);
         MessageCommand messageCommand = new MessageCommand(conversationManager);
         ReplyCommand replyCommand = new ReplyCommand(conversationManager);
+        SocialSpyCommand socialSpyCommand = new SocialSpyCommand(conversationManager);
 
         // Register plugin.yml
         if (getCommand("msg") != null) {
@@ -55,12 +56,17 @@ public class MsgCustom extends JavaPlugin {
             getCommand("reply").setExecutor(replyCommand);
             getCommand("reply").setTabCompleter(replyCommand); 
         }
+        if (getCommand("socialspy") != null) {
+            getCommand("socialspy").setExecutor(socialSpyCommand);
+            getCommand("socialspy").setTabCompleter(socialSpyCommand);
+        }
 
         Bukkit.getScheduler().runTaskLater(this, () -> {
             cleanCommandRegistry();
 
             if (getCommand("msg") != null) getCommand("msg").setExecutor(messageCommand);
             if (getCommand("reply") != null) getCommand("reply").setExecutor(replyCommand);
+            if (getCommand("socialspy") != null) getCommand("socialspy").setExecutor(socialSpyCommand);
 
             getLogger().info("Registry commands complete!");
         }, 1L);
@@ -91,7 +97,8 @@ public class MsgCustom extends JavaPlugin {
                     "minecraft:msg", "minecraft:message", "minecraft:w", 
                     "minecraft:whisper", "minecraft:tell", "minecraft:teammsg", "minecraft:tm",
                     "msgcustom:msg", "msgcustom:message", "msgcustom:w", 
-                    "msgcustom:whisper", "msgcustom:tell", "msgcustom:reply", "msgcustom:r"
+                    "msgcustom:whisper", "msgcustom:tell", "msgcustom:reply", "msgcustom:r",
+                    "msgcustom:socialspy"
             );
 
             for (String cmdLabel : toRemove) {

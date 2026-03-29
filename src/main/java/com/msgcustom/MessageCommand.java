@@ -43,7 +43,7 @@ public class MessageCommand implements CommandExecutor, TabCompleter {
         Player target = Bukkit.getPlayer(args[0]);
 
         if (target == null || !senderPlayer.canSee(target)) {
-            sender.sendMessage(Component.text("Player is not online!", NamedTextColor.RED));
+            sender.sendMessage(Component.text("That player is not online!", NamedTextColor.RED));
             return true;
         }
 
@@ -82,6 +82,8 @@ public class MessageCommand implements CommandExecutor, TabCompleter {
         senderPlayer.sendMessage(toMessage);
         target.sendMessage(fromMessage);
         target.playSound(target.getLocation(), org.bukkit.Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.0f);
+
+        conversationManager.notifySpies(senderPlayer, target, message);
 
         return true;
     }

@@ -1,0 +1,13 @@
+# Word Filter Configuration
+# Automatically generated once the server starts.
+# Only reloads and cached on server startup
+
+# Accepts Single words or Multi-word phrases (one word per line) & (will match exact phrase):
+badword (word)
+bad phrase here (phrase)
+
+# The filter automatically:
+# - Converts to lowercase
+# - Strips punctuation 
+# - Normalizes Unicode 
+# - Handles accented characters 
