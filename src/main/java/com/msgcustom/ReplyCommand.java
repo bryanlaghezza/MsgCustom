@@ -29,17 +29,22 @@ public class ReplyCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
+        Player senderPlayer = (Player) sender;
+
+        if (conversationManager.isOnCooldown(senderPlayer.getUniqueId())) {
+            senderPlayer.sendMessage(Component.text("Please wait 0.5s between messages!", NamedTextColor.RED));
+            return true;
+        }
+
         if (args.length < 1) {
             sender.sendMessage(Component.text("Usage: /reply <message>", NamedTextColor.RED));
             return true;
         }
 
-        Player senderPlayer = (Player) sender;
-
         UUID lastMessagedId = conversationManager.getLastMessaged(senderPlayer.getUniqueId());
 
         if (lastMessagedId == null) {
-            sender.sendMessage(Component.text("No one has messaged in the past 5 minutes.", NamedTextColor.RED));
+            sender.sendMessage(Component.text("No one has messaged in the past 5 minutes!", NamedTextColor.RED));
             return true;
         }
 
@@ -52,6 +57,11 @@ public class ReplyCommand implements CommandExecutor, TabCompleter {
         }
 
         String message = String.join(" ", args);
+
+        if (conversationManager.containsFilteredWord(message)) {
+            sender.sendMessage(Component.text("This comment \"" + message + "\" has been blocked because it encourages behavior that is prohibited within our community policies. Please consider reviewing our rules book and trying again.", NamedTextColor.RED));
+            return true;
+        }
 
         if (conversationManager.isDuplicateMessage(senderPlayer.getUniqueId(), message)) {
             sender.sendMessage(Component.text("You cannot send the same message twice!", NamedTextColor.RED));

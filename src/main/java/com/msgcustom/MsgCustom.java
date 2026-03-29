@@ -5,6 +5,8 @@ import org.bukkit.command.Command;
 import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
@@ -12,10 +14,33 @@ import java.util.Map;
 
 public class MsgCustom extends JavaPlugin {
     private ConversationManager conversationManager;
+    private WordFilter wordFilter;
 
     @Override
     public void onEnable() {
-        conversationManager = new ConversationManager(this);
+        wordFilter = new WordFilter();
+        
+        // Loading filter.txt
+        File filterFile = new File(getDataFolder(), "filter.txt");
+        if (!getDataFolder().exists()) {
+            getDataFolder().mkdirs();
+        }
+
+        // Creating filter.txt 
+        if (!filterFile.exists()) {
+            try {
+                filterFile.createNewFile();
+                getLogger().info("Whoops couldn't find 'filter.txt' creating it shortly!");
+            } catch (IOException e) {
+                getLogger().severe("Couldn't create filter.txt: " + e.getMessage());
+            }
+        }
+        
+        wordFilter.loadFilterFile(filterFile);
+        getLogger().info("Loaded " + wordFilter.getFilteredWordsCount() + " words and " + 
+                        wordFilter.getFilteredPhrasesCount() + " phrases");
+        
+        conversationManager = new ConversationManager(wordFilter);
 
         getServer().getPluginManager().registerEvents(conversationManager, this);
         MessageCommand messageCommand = new MessageCommand(conversationManager);
@@ -37,7 +62,7 @@ public class MsgCustom extends JavaPlugin {
             if (getCommand("msg") != null) getCommand("msg").setExecutor(messageCommand);
             if (getCommand("reply") != null) getCommand("reply").setExecutor(replyCommand);
 
-            getLogger().info("Registry commands complete.");
+            getLogger().info("Registry commands complete!");
         }, 1L);
 
         // 5-minute cleanup
